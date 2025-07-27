@@ -1,28 +1,57 @@
 
 import mongoose, {Schema, models, model} from "mongoose";
-import bcrypt from "bcryptjs";
 
-export interface IUser{
-    
-    email:string;
-    password: string;
-    _userId: mongoose.Types.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
+
+export const VIDEO_DIMENSIONS = {
+     width: 1080,
+     heigth: 1920,
+} as const;
+
+export interface IVideo {
+    _id?: mongoose.Types.ObjectId;
+    title: string;
+    description: string;
+    videoUrl: string;
+    thumbnailUrl: string;
+    controls?: boolean;
+    transformation?: {
+        height: number;
+        width: number;
+        quality?: number;
+    }
 }
 
-const userSchema = new Schema<IUser>(
+const Videoschema = new Schema<IVideo>(
     {
-        email: {
-            type: String, 
-            unique: true, 
-            required: true 
+        title:{
+            type: String,
+            required: true
         },
-        password: {
+        description: {
             type: String,
             required: true,
-
+        },
+        videoUrl: {
+            type: String,
+            required: true
+        },
+        thumbnailUrl: {
+             type: String,
+             required: true
+        },
+        controls: {
+            type: Boolean,
+            default: true
+        },
+        transformation: {
+            height: {type: Number, default: VIDEO_DIMENSIONS.heigth},
+            width: {type: Number, default: VIDEO_DIMENSIONS.width},
+            quality:{type: Number, min: 1, max: 100 }
         }
     },
     {timestamps: true}
-);
+)
+
+const Video = models?.Video || model<IVideo>('Video', Videoschema);
+
+export default Video;
