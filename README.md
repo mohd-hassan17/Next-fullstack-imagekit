@@ -1,3 +1,3 @@
 # FullStack Video sharing platform
 <br>
-<p></p>
+<p>It has authentication with credentials, google and github with the hepl Next-auth</p>
