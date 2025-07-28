@@ -1,6 +1,8 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-// import { connectToDatabase } from "./db";
+import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
+
 import { dbConnection } from "./db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
@@ -11,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "passsword" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -23,12 +25,12 @@ export const authOptions: NextAuthOptions = {
           const user = await User.findOne({ email: credentials.email });
 
           if (!user) {
-            throw new Error("No user found with this");
+            throw new Error("No user found with this email");
           }
 
           const isValid = await bcrypt.compare(
             credentials.password,
-            user.passsword
+            user.password
           );
 
           if (!isValid) {
@@ -45,8 +47,15 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GitHubProvider({
+    clientId: process.env.GITHUB_ID!,
+    clientSecret: process.env.GITHUB_SECRET!
+  }),
+    GoogleProvider({
+    clientId: process.env.GOOGLE_CLIENT_ID!,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+  })
   ],
-  
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

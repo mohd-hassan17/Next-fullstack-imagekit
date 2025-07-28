@@ -15,6 +15,7 @@ if (!cached) {
 
 export async function dbConnection() {
     if (cached.conn) {
+        console.log("✅ Using cached DB connection");
         return cached.conn
     }
 
@@ -23,16 +24,18 @@ export async function dbConnection() {
             bufferCommands: true,
             maxPoolSize: 10,
         };
-
-        mongoose.connect(MONGODB_URI, opts).then(() => mongoose.connection);
+        cached.promise = mongoose.connect(MONGODB_URI, opts).then(() => {
+      console.log("✅ MongoDB connected");
+      return mongoose.connection;
+    });
     }
 
     try {
         cached.conn = await cached.promise
     } catch (error) {
+        console.error("❌ MongoDB connection failed:", error);
         cached.promise = null;
         throw error
     }
-
     return cached.conn;
 }
